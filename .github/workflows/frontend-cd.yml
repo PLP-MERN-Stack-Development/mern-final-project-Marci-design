@@ -1,0 +1,24 @@
+# .github/workflows/frontend-cd.yml
+
+name: Frontend CD
+
+# This workflow runs only after the 'Frontend CI' workflow completes successfully on the main branch
+on:
+  workflow_run:
+    workflows: ["Frontend CI"]
+    types:
+      - completed
+    branches: [ "main" ]
+
+jobs:
+  deploy-frontend:
+    # Only run this job if the upstream workflow (CI) succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel Deployment
+        uses: fjogeleit/http-request-action@v1
+        with:
+          # The URL is retrieved from GitHub Secrets
+          url: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+          method: 'POST'

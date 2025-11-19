@@ -1,0 +1,38 @@
+# .github/workflows/frontend-ci.yml
+
+name: Frontend CI
+
+# Trigger on pushes or PRs to the main branch, but only for frontend code
+on:
+  push:
+    branches: [ "main" ]
+    paths: [ 'client/**' ]
+  pull_request:
+    branches: [ "main" ]
+    paths: [ 'client/**' ]
+
+jobs:
+  frontend-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: client/package.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./client
+
+      - name: Run linter
+        run: npm run lint
+        working-directory: ./client
+
+      - name: Run tests
+        run: npm test
+        working-directory: ./client
